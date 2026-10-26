@@ -4,27 +4,55 @@
 # Usage: Run from a PowerShell terminal.
 # Note: No ping response does not prove a device is offline.
 
-$NetworkPrefix = "192.168.16"
-$StartHost = 60
-$EndHost = 65
+function Test-NetworkRange {
+    param(
+        [Parameter(Mandatory)]
+        [ValidatePattern('^(?:\d{1,3}\.){2}\d{1,3}$')]
+        [string]$NetworkPrefix,
 
-$TestIPs = $StartHost..$EndHost | ForEach-Object {
-    "$NetworkPrefix.$_"
-}
+        [Parameter(Mandatory)]
+        [ValidateRange(1, 254)]
+        [int]$StartHost,
 
-$TestIPs
+        [Parameter(Mandatory)]
+        [ValidateRange(1, 254)]
+        [int]$EndHost
+    )
 
-$Results = foreach ($IP in $TestIPs) {
-    $Responded = Test-Connection `
-        -ComputerName $IP `
-        -Count 1 `
-        -Quiet `
-        -ErrorAction SilentlyContinue
-
-    [PSCustomObject]@{
-        IPAddress = $IP
-        Responded = [bool]$Responded
+    if ($StartHost -gt $EndHost) {
+        throw "StartHost cannot be greater than EndHost."
     }
+
+    $PrefixParts = $NetworkPrefix.Split('.')
+
+    foreach ($Part in $PrefixParts) {
+        if ([int]$Part -gt 255) {
+            throw "Invalid network prefix: $NetworkPrefix"
+        }
+    }
+
+    $Results = foreach ($HostNumber in $StartHost..$EndHost) {
+        $IP = "$NetworkPrefix.$HostNumber"
+
+        $Responded = Test-Connection `
+            -ComputerName $IP `
+            -Count 1 `
+            -Quiet `
+            -ErrorAction SilentlyContinue
+
+        [PSCustomObject]@{
+            IPAddress = $IP
+            Responded = [bool]$Responded
+        }
+    }
+
+    $Results
 }
 
-$Results | Format-Table -AutoSize
+
+
+
+
+
+
+
