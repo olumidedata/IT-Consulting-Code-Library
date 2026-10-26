@@ -4,8 +4,12 @@
 # Usage: Run from a PowerShell terminal.
 # Note: No ping response does not prove a device is offline.
 
-$TestIPs = 60..65 | ForEach-Object {
-    "192.168.16.$_"
+$NetworkPrefix = "192.168.16"
+$StartHost = 60
+$EndHost = 65
+
+$TestIPs = $StartHost..$EndHost | ForEach-Object {
+    "$NetworkPrefix.$_"
 }
 
 $TestIPs
