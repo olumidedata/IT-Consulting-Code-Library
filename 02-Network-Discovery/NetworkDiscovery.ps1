@@ -4,13 +4,11 @@
 # Usage: Run from a PowerShell terminal.
 # Note: No ping response does not prove a device is offline.
 
-$TestIPs = @(
-    "192.168.16.8"
-    "192.168.16.62"
-    "192.168.16.64"
-    "192.168.16.129"
-    "192.168.16.130"
-)
+$TestIPs = 60..65 | ForEach-Object {
+    "192.168.16.$_"
+}
+
+$TestIPs
 
 $Results = foreach ($IP in $TestIPs) {
     $Responded = Test-Connection `
