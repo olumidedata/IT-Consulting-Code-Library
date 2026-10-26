@@ -23,13 +23,28 @@ function Test-NetworkRange {
         throw "StartHost cannot be greater than EndHost."
     }
 
-    $PrefixParts = $NetworkPrefix.Split('.')
+   $PrefixParts = $NetworkPrefix.Split('.')
 
-    foreach ($Part in $PrefixParts) {
-        if ([int]$Part -gt 255) {
-            throw "Invalid network prefix: $NetworkPrefix"
-        }
+foreach ($Part in $PrefixParts) {
+    if ([int]$Part -gt 255) {
+        throw "Invalid network prefix: $NetworkPrefix"
     }
+}
+
+$TestAddress = "$NetworkPrefix.1"
+$ParsedAddress = $null
+
+if (-not [System.Net.IPAddress]::TryParse(
+    $TestAddress,
+    [ref]$ParsedAddress
+)) {
+    throw "Invalid IPv4 network prefix: $NetworkPrefix"
+}
+
+if ($ParsedAddress.AddressFamily -ne
+    [System.Net.Sockets.AddressFamily]::InterNetwork) {
+    throw "The network prefix must be an IPv4 address prefix."
+}
 
     $Results = foreach ($HostNumber in $StartHost..$EndHost) {
         $IP = "$NetworkPrefix.$HostNumber"
