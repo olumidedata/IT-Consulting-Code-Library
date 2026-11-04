@@ -1,0 +1,7 @@
+Get-NetIPAddress -AddressFamily IPv4 |
+    Where-Object {
+        $_.InterfaceAlias -eq "Wi-Fi" -and
+        $_.IPAddress -notlike "169.254.*"
+    } |
+    Select-Object IPAddress, PrefixLength
+
